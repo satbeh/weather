@@ -1,0 +1,15 @@
+.App {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.LeftNav {
+  width: 25%;
+  margin: 20px;
+}
+
+.Content {
+  width: 75%;
+  margin: 20px;
+}

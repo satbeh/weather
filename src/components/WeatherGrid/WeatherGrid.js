@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getStations } from "../../services/WeatherService";
 import "./WeatherGrid.css";
 
 const FETCH_STATUS = {
@@ -8,8 +9,10 @@ const FETCH_STATUS = {
   COMPLETE_ERROR: 3,
 };
 
-export default function WeatherGrid() {
+export default function WeatherGrid(props) {
+  const { keyword } = props;
   const [stations, setStations] = useState([]);
+  const [filteredStations, setFilteredStations] = useState([]);
   const [currentPageData, setCurrentPageData] = useState([]);
   const [pageNum, setPageNum] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -28,11 +31,13 @@ export default function WeatherGrid() {
 
   useEffect(() => {
     setFetchStatus(FETCH_STATUS.IN_PROGRESS);
-    fetch("https://api.weather.gov/radar/stations")
+
+    getStations()
       .then((res) => res.json())
       .then((res) => {
         setFetchStatus(FETCH_STATUS.COMPLETE_SUCCESS);
         setStations(res.features);
+        setFilteredStations(res.features);
       })
       .catch((error) => {
         setFetchStatus(FETCH_STATUS.COMPLETE_ERROR);
@@ -41,14 +46,26 @@ export default function WeatherGrid() {
   }, []);
 
   useEffect(() => {
-    // if stations are null or undefined, set empty currentpagedata
-    if (stations == null) {
+    // if filtered stations are null or undefined, set empty currentpagedata
+    if (filteredStations == null) {
       setCurrentPageData([]);
     }
+    setTotalPages(Math.ceil(filteredStations.length / maxRows));
+    setCurrentPageData(
+      filteredStations.slice(pageNum * maxRows, pageNum * maxRows + maxRows)
+    );
+  }, [filteredStations, pageNum]);
 
-    setTotalPages(Math.ceil(stations.length / maxRows));
-    setCurrentPageData(stations.slice(pageNum, pageNum + maxRows));
-  }, [stations, pageNum]);
+  useEffect(() => {
+    const keywordLowerCase = keyword.toLowerCase();
+    const updatedStations = stations.filter(
+      (station) =>
+        station.properties.id.toLowerCase().indexOf(keywordLowerCase) >= 0 ||
+        station.properties.name.toLowerCase().indexOf(keywordLowerCase) >= 0
+    );
+    setFilteredStations(updatedStations);
+    setPageNum(0);
+  }, [stations, keyword]);
 
   return (
     <div className="WeatherGrid">

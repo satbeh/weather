@@ -1,3 +1,26 @@
 .Filters {
   width: 100%;
 }
+
+.Filters .Form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.Filters .Form .Field {
+}
+
+.Filters .Form .Field label {
+  font-size: 14px;
+  font-style: italic;
+  display: block;
+}
+
+.Filters .Form .Field input,
+.Filters .Form .Field select {
+  min-width: 100px;
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
